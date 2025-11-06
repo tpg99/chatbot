@@ -13,22 +13,24 @@ st.set_page_config(
 )
 
 # --- LOGO AZIENDALE ---
-# Assicurati che il file 'logo.png' sia nella stessa cartella del progetto
 if os.path.exists("logo.png"):
     st.image("logo.png", width=200)
 else:
-    st.markdown("### 🤖 Chatbot Manuale BP")
+    st.markdown("<h2 style='color:#002147;'>🤖 Chatbot Manuale BP</h2>", unsafe_allow_html=True)
 
-st.write("Fai una domanda basata sul file CSV con domande, risposte e referenti.")
+st.markdown("<p style='color:#222; font-size:16px;'>Fai una domanda basata sul file CSV con domande, risposte e referenti.</p>", unsafe_allow_html=True)
 
-# --- SFONDO PERSONALIZZATO ---
+# --- SFONDO CHIARO PERSONALIZZATO ---
 page_bg = """
 <style>
 [data-testid="stAppViewContainer"] {
-    background: linear-gradient(180deg, #e6f0ff 0%, #ffffff 100%);
+    background-color: #f9fafb;
 }
 [data-testid="stHeader"] {
     background: rgba(0,0,0,0);
+}
+h1, h2, h3, h4, h5, h6, p, div, span {
+    color: #222 !important;
 }
 [data-testid="stToolbar"] {
     right: 2rem;
@@ -104,7 +106,7 @@ if user_input:
     query_emb = model.encode([user_input])
     D, I = index.search(np.array(query_emb), k=3)
 
-    st.markdown("### 📖 Risposte trovate:")
+    st.markdown("<h3 style='color:#002147;'>📖 Risposte trovate:</h3>", unsafe_allow_html=True)
     for i in I[0]:
         st.markdown(f"**Domanda simile:** {questions[i]}")
         st.markdown(f"**Risposta:** {answers[i]}")
