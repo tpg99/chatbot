@@ -23,7 +23,7 @@ def load_pdf(path):
     return text
 
 model = load_model()
-text = load_pdf("Domande_e_risposte.pdf")
+text = load_pdf("14 - Domande e risposte")
 
 # --- Creazione embedding ---
 sentences = [s.strip() for s in text.split(".") if len(s.strip()) > 5]
@@ -39,3 +39,4 @@ if question:
     st.markdown("### Risposte trovate:")
     for i in I[0]:
         st.write("-", sentences[i])
+
