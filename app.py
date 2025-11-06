@@ -6,8 +6,8 @@ import numpy as np
 import os
 
 # --- Configurazione pagina ---
-st.set_page_config(page_title="Chatbot Manuale BP")
-st.title("Chatbot Manuale BP")
+st.set_page_config(page_title="Chatbot Manuale BP", layout="centered")
+st.title("🤖 Chatbot Manuale BP")
 st.write("Fai una domanda basata sul file CSV con domande, risposte e referenti.")
 
 # --- Caricamento modello ---
@@ -31,7 +31,10 @@ if os.path.exists(csv_file):
     df = load_csv_from_path(csv_file)
 else:
     st.warning("File CSV non trovato nel progetto. Carica un file CSV manualmente:")
-    uploaded_file = st.file_uploader("Carica un file CSV (con colonne 'domanda', 'risposta', 'chi_interpellare')", type="csv")
+    uploaded_file = st.file_uploader(
+        "Carica un file CSV (con colonne 'domanda', 'risposta', 'chi_interpellare')", 
+        type="csv"
+    )
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
         st.success("CSV caricato con successo!")
@@ -53,23 +56,36 @@ questions = df["domanda"].astype(str).tolist()
 answers = df["risposta"].astype(str).tolist()
 contacts = df["chi_interpellare"].astype(str).tolist()
 
-st.info(f"Domande caricate: {len(questions)}")
+st.info(f"📚 Domande caricate: {len(questions)}")
 
 embeddings = model.encode(questions, convert_to_tensor=False)
 index = faiss.IndexFlatL2(embeddings.shape[1])
 index.add(np.array(embeddings))
 
+# --- Gestione stato per resetare il campo ---
+if "reset" not in st.session_state:
+    st.session_state.reset = False
+
 # --- Interfaccia chat ---
-user_input = st.text_input("Scrivi la tua domanda:")
+if not st.session_state.reset:
+    user_input = st.text_input("💬 Scrivi la tua domanda:")
+else:
+    st.session_state.reset = False
+    user_input = st.text_input("💬 Scrivi la tua domanda:", value="", key="new_question")
 
 if user_input:
     query_emb = model.encode([user_input])
     D, I = index.search(np.array(query_emb), k=3)
 
-    st.markdown("### Risposte più rilevanti:")
+    st.markdown("### 📖 Risposte trovate:")
     for i in I[0]:
         st.markdown(f"**Domanda simile:** {questions[i]}")
         st.markdown(f"**Risposta:** {answers[i]}")
-        if contacts[i] and contacts[i].strip() != "":
+        if contacts[i] and contacts[i].strip():
             st.markdown(f"**Chi interpellare:** {contacts[i]}")
         st.markdown("---")
+
+    # Bottone per proseguire con altre domande
+    if st.button("🔄 Fai un'altra domanda"):
+        st.session_state.reset = True
+        st.experimental_rerun()
